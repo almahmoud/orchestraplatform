@@ -20,7 +20,7 @@ export type WorkshopTemplateResponse = {
     tier?: WorkshopTemplateResponse.tier;
     resources: WorkshopResources;
     storage?: (WorkshopStorage | null);
-    tags?: Array<'bioconductor' | 'jupyter' | 'python' | 'rstudio'>;
+    tags?: Array<'current' | 'archived' | 'bioconductor' | 'jupyter' | 'python' | 'rstudio' | 'bioc2026' | 'eurobioc2025' | 'mig2025' | 'gbcc2025' | 'biocasia2024' | 'eurobioc2024' | 'bioc2024' | 'cbrc2024' | 'abacbs2023' | 'bbcc2023' | 'biocasia2023' | 'eurobioc2023' | 'monashbioinformatics2023' | 'iscb2023' | 'bioc2023' | 'ismb2023' | 'xmeetingbsb2023' | 'artnet2023' | 'smorgasbord2023' | 'cdnmws'>;
     url?: (string | null);
     sourceUrl?: (string | null);
     submittedBy?: (string | null);

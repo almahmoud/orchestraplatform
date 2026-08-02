@@ -201,6 +201,19 @@ function matchesDuration(defaultDuration: string, filter: string): boolean {
   }
 }
 
+// Catalog filter-chip order: lifecycle first so the live events lead, then
+// platform, then events newest-first. Mirrors TAG_ORDER in
+// orchestra-template-tools/models.py.
+const TAG_ORDER: string[] = [
+  'current', 'archived',
+  'bioconductor', 'jupyter', 'python', 'rstudio',
+  'bioc2026', 'eurobioc2025', 'mig2025', 'gbcc2025', 'biocasia2024',
+  'eurobioc2024', 'bioc2024', 'cbrc2024', 'abacbs2023', 'bbcc2023',
+  'biocasia2023', 'eurobioc2023', 'monashbioinformatics2023', 'iscb2023',
+  'bioc2023', 'ismb2023', 'xmeetingbsb2023', 'artnet2023', 'smorgasbord2023',
+  'cdnmws',
+];
+
 type SortOption = 'name-asc' | 'name-desc' | 'newest' | 'oldest';
 
 export function Templates() {
@@ -236,10 +249,17 @@ export function Templates() {
 
   const active = useMemo(() => (data?.items ?? []).filter((t) => t.isActive), [data]);
 
-  const allTags = useMemo(
-    () => [...new Set(active.flatMap((t) => t.tags ?? []))].sort(),
-    [active]
-  );
+  // Deliberate order, not alphabetical: alphabetical puts "archived" ahead of
+  // "current" and scatters the events between platform tags. Mirrors TAG_ORDER
+  // in orchestra-template-tools models.py -- keep the two in step when an event
+  // is added there.
+  const allTags = useMemo(() => {
+    const present = new Set<string>(active.flatMap((t) => t.tags ?? []));
+    const known = TAG_ORDER.filter((tag) => present.has(tag));
+    // Anything the frontend hasn't heard of still shows, just at the end.
+    const unknown = [...present].filter((tag) => !TAG_ORDER.includes(tag)).sort();
+    return [...known, ...unknown];
+  }, [active]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

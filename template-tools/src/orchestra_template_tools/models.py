@@ -11,7 +11,7 @@ can install it in CI without dragging in the platform's server/operator stack.
 """
 
 import re
-from typing import Literal
+from typing import Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, TypeAdapter, field_validator
 
@@ -37,11 +37,54 @@ _QUANTITY_BYTES = {
 }
 _STORAGE_SIZE_MAX_BYTES = 20 * 2**30
 
-# Closed catalog-tag vocabulary. Seeded from EXACTLY the tags the two shipped
-# templates use (deploy/charts/orchestra/files/templates/{rstudio,jupyter}.yaml);
-# an unknown tag fails validation everywhere. Extending it is a reviewed PR to
-# this enum (ADR-0009) so the issue-form checkboxes and the validator can't drift.
-TemplateTag = Literal["bioconductor", "jupyter", "python", "rstudio"]
+# Closed catalog-tag vocabulary. An unknown tag fails validation everywhere, and
+# the registry loads eagerly, so one bad tag takes down the whole catalog rather
+# than a single template. Extending it is a reviewed PR to this enum (ADR-0009)
+# so the issue-form checkboxes and the validator can't drift.
+#
+# Declaration order is meaningful: TAG_ORDER below is derived from it and is what
+# the catalog uses to order its filter chips. Three groups --
+#   lifecycle  current vs archived, so live events come before the back catalogue
+#   platform   what the session actually runs
+#   event      one per event section, mirroring the sections the Galaxy tool panel
+#              used (workshop-contributions/generated/workshop-toolconf-values.yaml)
+#
+# Add a new event at the top of the event group so it sorts ahead of older ones.
+TemplateTag = Literal[
+    # lifecycle
+    "current",
+    "archived",
+    # platform
+    "bioconductor",
+    "jupyter",
+    "python",
+    "rstudio",
+    # events, newest first
+    "bioc2026",
+    "eurobioc2025",
+    "mig2025",
+    "gbcc2025",
+    "biocasia2024",
+    "eurobioc2024",
+    "bioc2024",
+    "cbrc2024",
+    "abacbs2023",
+    "bbcc2023",
+    "biocasia2023",
+    "eurobioc2023",
+    "monashbioinformatics2023",
+    "iscb2023",
+    "bioc2023",
+    "ismb2023",
+    "xmeetingbsb2023",
+    "artnet2023",
+    "smorgasbord2023",
+    "cdnmws",
+]
+
+# The catalog orders filter chips by this rather than alphabetically, which would
+# bury "current" under "archived" and scatter the events.
+TAG_ORDER: tuple[str, ...] = get_args(TemplateTag)
 
 _URL_ADAPTER = TypeAdapter(HttpUrl)
 

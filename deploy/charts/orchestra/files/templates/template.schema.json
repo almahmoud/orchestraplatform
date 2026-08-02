@@ -192,10 +192,32 @@
       "description": "Category tags for filtering, from a closed vocabulary. An unknown tag fails validation; extend the enum via a reviewed PR.",
       "items": {
         "enum": [
+          "current",
+          "archived",
           "bioconductor",
           "jupyter",
           "python",
-          "rstudio"
+          "rstudio",
+          "bioc2026",
+          "eurobioc2025",
+          "mig2025",
+          "gbcc2025",
+          "biocasia2024",
+          "eurobioc2024",
+          "bioc2024",
+          "cbrc2024",
+          "abacbs2023",
+          "bbcc2023",
+          "biocasia2023",
+          "eurobioc2023",
+          "monashbioinformatics2023",
+          "iscb2023",
+          "bioc2023",
+          "ismb2023",
+          "xmeetingbsb2023",
+          "artnet2023",
+          "smorgasbord2023",
+          "cdnmws"
         ],
         "type": "string"
       },
