@@ -44,7 +44,9 @@ _STORAGE_SIZE_MAX_BYTES = 20 * 2**30
 #
 # Declaration order is meaningful: TAG_ORDER below is derived from it and is what
 # the catalog uses to order its filter chips. Three groups --
-#   lifecycle  current vs archived, so live events come before the back catalogue
+#   lifecycle  latest vs archived. `latest` is the catalog's default filter: the
+#              supported Bioconductor RStudio containers (two most recent
+#              releases plus devel) and the workshops currently being run
 #   platform   what the session actually runs
 #   event      one per event section, mirroring the sections the Galaxy tool panel
 #              used (workshop-contributions/generated/workshop-toolconf-values.yaml)
@@ -52,7 +54,7 @@ _STORAGE_SIZE_MAX_BYTES = 20 * 2**30
 # Add a new event at the top of the event group so it sorts ahead of older ones.
 TemplateTag = Literal[
     # lifecycle
-    "current",
+    "latest",
     "archived",
     # platform
     "bioconductor",

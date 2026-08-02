@@ -192,7 +192,7 @@
       "description": "Category tags for filtering, from a closed vocabulary. An unknown tag fails validation; extend the enum via a reviewed PR.",
       "items": {
         "enum": [
-          "current",
+          "latest",
           "archived",
           "bioconductor",
           "jupyter",

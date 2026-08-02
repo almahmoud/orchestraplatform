@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTemplates, useTemplateLaunchCounts } from '../hooks/useTemplates';
 import { useInstances, useExtendInstance } from '../hooks/useInstances';
 import { Button } from '../components/ui/Button';
@@ -205,7 +205,7 @@ function matchesDuration(defaultDuration: string, filter: string): boolean {
 // platform, then events newest-first. Mirrors TAG_ORDER in
 // orchestra-template-tools/models.py.
 const TAG_ORDER: string[] = [
-  'current', 'archived',
+  'latest', 'archived',
   'bioconductor', 'jupyter', 'python', 'rstudio',
   'bioc2026', 'eurobioc2025', 'mig2025', 'gbcc2025', 'biocasia2024',
   'eurobioc2024', 'bioc2024', 'cbrc2024', 'abacbs2023', 'bbcc2023',
@@ -213,6 +213,9 @@ const TAG_ORDER: string[] = [
   'bioc2023', 'ismb2023', 'xmeetingbsb2023', 'artnet2023', 'smorgasbord2023',
   'cdnmws',
 ];
+
+// Pre-selected filter chip on first load.
+const DEFAULT_TAG = 'latest';
 
 type SortOption = 'name-asc' | 'name-desc' | 'newest' | 'oldest';
 
@@ -222,7 +225,10 @@ export function Templates() {
   const { data: instancesData } = useInstances();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortOption>('newest');
-  const [activeTag, setActiveTag] = useState('');
+  // Default the catalog to `latest` rather than everything: 87 templates, most
+  // of them past events, is not a useful landing view. Falls back to All if no
+  // template carries the tag, so the page is never empty by default.
+  const [activeTag, setActiveTag] = useState(DEFAULT_TAG);
   const [durationFilter, setDurationFilter] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(
     () => (localStorage.getItem('orchestra:template-view') as 'grid' | 'list') ?? 'grid'
@@ -260,6 +266,10 @@ export function Templates() {
     const unknown = [...present].filter((tag) => !TAG_ORDER.includes(tag)).sort();
     return [...known, ...unknown];
   }, [active]);
+
+  useEffect(() => {
+    if (activeTag && active.length > 0 && !allTags.includes(activeTag)) setActiveTag('');
+  }, [allTags, active.length, activeTag]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
