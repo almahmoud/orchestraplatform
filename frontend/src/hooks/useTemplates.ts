@@ -10,11 +10,30 @@ import { request as __request } from '../api/generated/core/request';
 
 const TEMPLATES_KEY = ['templates'] as const;
 
-export function useTemplates(page = 1, size = 50, includeInactive = false) {
+// The catalog page filters, searches and sorts entirely client-side, so it needs
+// every template, not the first page. Importing the Bioconductor back catalogue
+// took this from 3 templates to 87, past the 50 the single request returned, and
+// everything after "E" alphabetically silently vanished from the menu -- which
+// included most of the `latest` set.
+//
+// The API caps `size` at 100, so one bigger request is not a fix either; this
+// walks the pages until it has them all.
+const PAGE_SIZE = 100; // API maximum
+
+export function useTemplates(includeInactive = false) {
   return useQuery({
-    queryKey: [...TEMPLATES_KEY, page, size, includeInactive],
-    queryFn: () =>
-      TemplatesService.listTemplatesTemplatesGet(page, size, includeInactive),
+    queryKey: [...TEMPLATES_KEY, 'all', includeInactive],
+    queryFn: async () => {
+      const first = await TemplatesService.listTemplatesTemplatesGet(1, PAGE_SIZE, includeInactive);
+      const items = [...(first.items ?? [])];
+      const total = first.total ?? items.length;
+      for (let page = 2; items.length < total; page++) {
+        const next = await TemplatesService.listTemplatesTemplatesGet(page, PAGE_SIZE, includeInactive);
+        if (!next.items?.length) break; // defensive: never loop forever
+        items.push(...next.items);
+      }
+      return { ...first, items, total };
+    },
   });
 }
 

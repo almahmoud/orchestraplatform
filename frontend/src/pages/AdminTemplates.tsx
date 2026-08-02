@@ -9,7 +9,7 @@ import { RefreshCw, GitBranch } from 'lucide-react';
 // is changed by editing files under deploy/charts/orchestra/files/templates/ via
 // a pull request, not through the UI.
 export function AdminTemplates() {
-  const { data, isLoading, refetch } = useTemplates(1, 100, true);
+  const { data, isLoading, refetch } = useTemplates(true);
 
   if (isLoading) {
     return (
